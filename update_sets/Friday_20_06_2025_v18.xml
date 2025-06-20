@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<unload unload_date="2025-06-20 06:36:28">
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_script_client"><sys_script_client action="INSERT_OR_UPDATE"><active>true</active><applies_extended>false</applies_extended><condition/><description/><field/><global>true</global><isolate_script>false</isolate_script><messages/><name>New problem message</name><order/><script><![CDATA[function onLoad() {
+   //Type appropriate comment here, and begin script below
+   g_form.addInfoMessage('New problem message on load');
+   //latest version in problem 18 changes are made
+}]]></script><sys_class_name>sys_script_client</sys_class_name><sys_created_by>challa.teja</sys_created_by><sys_created_on>2025-06-20 07:43:45</sys_created_on><sys_domain>global</sys_domain><sys_domain_path>/</sys_domain_path><sys_id>c9bad5749316e29047c7b0b47aba1083</sys_id><sys_mod_count>7</sys_mod_count><sys_name>New problem message</sys_name><sys_overrides/><sys_package display_value="Global" source="global">global</sys_package><sys_policy/><sys_scope display_value="Global">global</sys_scope><sys_update_name>sys_script_client_c9bad5749316e29047c7b0b47aba1083</sys_update_name><sys_updated_by>challa.teja</sys_updated_by><sys_updated_on>2025-06-20 13:35:57</sys_updated_on><table>problem</table><type>onLoad</type><ui_type>10</ui_type><view/></sys_script_client></record_update>
+</unload>
