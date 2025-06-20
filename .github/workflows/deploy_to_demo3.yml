@@ -1,23 +1,33 @@
-name: Deploy to Demo3
+name: Deploy Update Set to Demo3
 
 on:
   push:
     paths:
-      - 'update_sets/**.xml'
+      - 'update_sets/**/*.xml'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Send update set to Demo3
+      - name: Get updated file
+        id: changes
         run: |
-          FILE=$(git diff --name-only HEAD^ HEAD | grep 'update_sets/.*\.xml')
-          [ -z "$FILE" ] && echo "No update set changed" && exit 0
-          
-          curl -X POST https://agreeyasolutionsincdemo3.service-now.com/api/ays/import_update_set/import \
-            -H "Content-Type: application/json" \
+          FILE=$(git diff-tree --no-commit-id --name-only -r $GITHUB_SHA | grep 'update_sets/.*\.xml' || true)
+          echo "file=$FILE" >> $GITHUB_OUTPUT
+
+      - name: Call Demo3 API
+        if: steps.changes.outputs.file != ''
+        run: |
+          echo "Deploying ${{ steps.changes.outputs.file }}"
+
+          curl -X POST https://demo3.service-now.com/api/x_namespace/import_updateset \
             -H "Authorization: Basic ${{ secrets.SN_BASIC_AUTH }}" \
-            -d @<(jq -n --arg name "$FILE" --arg xml "$(base64 -w 0 $FILE)" '{name: $name, xml_base64: $xml}')
+            -H "Content-Type: application/json" \
+            -d @<(jq -n \
+                  --arg name "${{ steps.changes.outputs.file }}" \
+                  --arg xml "$(base64 -w 0 ${{ steps.changes.outputs.file }})" \
+                  '{name: $name, xml_base64: $xml}')
