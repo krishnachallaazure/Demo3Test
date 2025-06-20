@@ -25,7 +25,6 @@ jobs:
           echo "Update set file from previous step: ${{ steps.get_file.outputs.file }}"
 
       - name: Deploy to ServiceNow Demo3
-        if: steps.get_file.outputs.file != ''
         env:
           SN_USER: ${{ secrets.SN_USER }}
           SN_PASSWORD: ${{ secrets.SN_PASSWORD }}
