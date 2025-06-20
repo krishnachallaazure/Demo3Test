@@ -1,4 +1,4 @@
-name: Deploy Update Set to Demo3
+name: Deploy Latest Update Set to Demo3
 
 on:
   push:
@@ -13,32 +13,24 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Get changed update set file
-        id: get_file
-        run: |
-          FILE=$(git diff-tree --no-commit-id --name-only -r $GITHUB_SHA | grep 'update_sets/.*\.xml' || true)
-          echo "Detected update set file: $FILE"
-          echo "file=$FILE" >> $GITHUB_OUTPUT
-
-      - name: Log file for debugging
-        run: |
-          echo "Update set file from previous step: ${{ steps.get_file.outputs.file }}"
-
-      - name: Deploy to ServiceNow Demo3
+      - name: Deploy latest update set file
         env:
           SN_USER: ${{ secrets.SN_USER }}
           SN_PASSWORD: ${{ secrets.SN_PASSWORD }}
         run: |
-          FILE="${{ steps.get_file.outputs.file }}"
-          echo "Deploying $FILE"
+          # Get the most recently modified XML file
+          FILE=$(ls -t update_sets/*.xml | head -n 1)
 
-          # Encode update set content to base64 (no line breaks)
+          if [ ! -f "$FILE" ]; then
+            echo "No XML file found. Exiting."
+            exit 1
+          fi
+
+          echo "Deploying update set: $FILE"
+
           BASE64_XML=$(base64 -w 0 "$FILE")
-
-          # Encode Basic Auth at runtime
           AUTH_HEADER=$(echo -n "$SN_USER:$SN_PASSWORD" | base64)
 
-          # Call ServiceNow REST API
           curl -X POST "https://agreeyasolutionsincdemo3.service-now.com/api/ays/import_update_set/import" \
             -H "Authorization: Basic $AUTH_HEADER" \
             -H "Content-Type: application/json" \
