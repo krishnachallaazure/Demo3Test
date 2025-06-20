@@ -1,4 +1,4 @@
-name: Deploy Latest Update Set to Demo3
+name: Deploy Update Set to Demo3
 
 on:
   push:
@@ -13,28 +13,17 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Deploy latest update set file
+      - name: Trigger Import Job on ServiceNow Demo3
         env:
-          SN_USER: ${{ secrets.SN_USER }}
-          SN_PASSWORD: ${{ secrets.SN_PASSWORD }}
+          SN_INSTANCE: agreeyasolutionsincdemo3
+          SN_USER: ${{ secrets.SN_USER }}       # Set in GitHub Secrets
+          SN_PASSWORD: ${{ secrets.SN_PASSWORD }} # Set in GitHub Secrets
         run: |
-          # Get the most recently modified XML file
-          FILE=$(ls -t update_sets/*.xml | head -n 1)
+          echo "Triggering ServiceNow Import Scheduled Job..."
 
-          if [ ! -f "$FILE" ]; then
-            echo "No XML file found. Exiting."
-            exit 1
-          fi
-
-          echo "Deploying update set: $FILE"
-
-          BASE64_XML=$(base64 -w 0 "$FILE")
           AUTH_HEADER=$(echo -n "$SN_USER:$SN_PASSWORD" | base64)
 
-          curl -X POST "https://agreeyasolutionsincdemo3.service-now.com/api/ays/import_update_set/import" \
+          curl -X POST "https://$SN_INSTANCE.service-now.com/api/ays/import_update_set/import" \
             -H "Authorization: Basic $AUTH_HEADER" \
             -H "Content-Type: application/json" \
-            -d @<(jq -n \
-                  --arg name "$(basename "$FILE")" \
-                  --arg xml_base64 "$BASE64_XML" \
-                  '{name: $name, xml_base64: $xml_base64}')
+            -d '{}'
