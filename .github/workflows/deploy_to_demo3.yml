@@ -24,7 +24,7 @@ jobs:
         run: |
           echo "Deploying ${{ steps.changes.outputs.file }}"
 
-          curl -X POST https://demo3.service-now.com/api/x_namespace/import_updateset \
+          curl -X POST https://demo3.service-now.com/api/ays/import_update_set/import \
             -H "Authorization: Basic ${{ secrets.SN_BASIC_AUTH }}" \
             -H "Content-Type: application/json" \
             -d @<(jq -n \
