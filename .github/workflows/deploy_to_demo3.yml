@@ -1,0 +1,23 @@
+name: Deploy to Demo3
+
+on:
+  push:
+    paths:
+      - 'update_sets/**.xml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Send update set to Demo3
+        run: |
+          FILE=$(git diff --name-only HEAD^ HEAD | grep 'update_sets/.*\.xml')
+          [ -z "$FILE" ] && echo "No update set changed" && exit 0
+          
+          curl -X POST https://agreeyasolutionsincdemo3.service-now.com/api/ays/import_update_set/import \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Basic ${{ secrets.SN_BASIC_AUTH }}" \
+            -d @<(jq -n --arg name "$FILE" --arg xml "$(base64 -w 0 $FILE)" '{name: $name, xml_base64: $xml}')
